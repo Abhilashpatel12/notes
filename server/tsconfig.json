@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    // --- Project Structure ---
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // --- Module & Environment Settings ---
+    "module": "CommonJS",
+    "target": "ES2020",
+    "types": ["node"],
+
+    // --- Interoperability & Strictness ---
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"] // Ensures only files in the src directory are compiled
+}
