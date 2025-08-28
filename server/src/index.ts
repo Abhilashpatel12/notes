@@ -2,6 +2,16 @@ import express, { Express } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+// --- Rate Limiter ---
+// This will apply to all requests that start with /api/auth
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+});
 import connectDB from './config/db';
 import authRoutes from './routes/authRoutes';
 import noteRoutes from './routes/noteRoutes';
@@ -23,7 +33,7 @@ app.use(cors({
 app.use(express.json());
 
 // --- API Routes ---
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes); // Apply limiter to auth routes
 app.use('/api/notes', noteRoutes);
 
 app.listen(port, () => {
