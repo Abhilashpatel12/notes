@@ -1,4 +1,46 @@
 import { Request, Response } from 'express';
+import { validationResult } from 'express-validator';
+// --- User Login ---
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1. Find the user by their email address.
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Use a generic error message to avoid revealing if an email is registered.
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // 2. Check if the user has verified their account.
+    if (!user.isVerified) {
+      return res.status(403).json({ message: 'Account not verified. Please check your email for an OTP.' });
+    }
+
+    // 3. Compare the provided password with the hashed password in the database.
+    const isMatch = await bcrypt.compare(password, user.password!);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // 4. If credentials are correct, generate a JWT.
+    const token = generateToken(String(user._id));
+
+    return res.status(200).json({
+      message: 'Logged in successfully.',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+
+  } catch (error) {
+    console.error('Error during login:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
 import bcrypt from 'bcryptjs';
 import otpGenerator from 'otp-generator';
 import User from '../models/User';

@@ -1,8 +1,19 @@
+
 import express from 'express';
-import { signup, verifyOtp } from '../controllers/authController';
+import { signup, verifyOtp, login } from '../controllers/authController';
 import { body } from 'express-validator';
 
 const router = express.Router();
+// Route for handling user login.
+// We validate that the email and password are provided and meet basic criteria.
+router.post(
+  '/login',
+  [
+    body('email', 'Please provide a valid email').isEmail().normalizeEmail(),
+    body('password', 'Password is required').not().isEmpty(),
+  ],
+  login
+);
 
 // Route for handling the initial user registration.
 // We apply a validation chain to ensure the incoming data is clean.
