@@ -5,10 +5,12 @@ import { Header } from "../components/ui/Header";
 import { WelcomeCard } from "../components/ui/WelcomeCard";
 import { CreateNoteButton } from "../components/ui/CreateNoteButton";
 import { NotesList } from "../components/ui/NotesList";
+import NoteEditor from "../components/NoteEditor";
 
 interface Note {
   id: number;
   title: string;
+  content: string;
 }
 
 function Dashboard() {
@@ -16,24 +18,43 @@ function Dashboard() {
     {
       id: 1,
       title: "Note 1",
+      content: "This is a **markdown** note.\n\n- List item 1\n- List item 2",
     },
     {
       id: 2,
       title: "Note 2",
+      content: "Another note with _italic_ text.",
     },
   ]);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
 
   function deleteNote(id: number) {
     setNotes(notes.filter((note) => note.id !== id));
   }
 
   function createNote() {
-    const newId = Math.max(...notes.map((n) => n.id), 0) + 1;
-    const newNote: Note = {
-      id: newId,
-      title: `Note ${newId}`,
-    };
-    setNotes([...notes, newNote]);
+    setEditingNote(null);
+    setIsEditorOpen(true);
+  }
+
+  function handleEditNote(note: Note) {
+    setEditingNote(note);
+    setIsEditorOpen(true);
+  }
+
+  function handleSaveNote(newNote: { title: string; content: string }) {
+    if (editingNote) {
+      setNotes(notes.map((n) => n.id === editingNote.id ? { ...n, ...newNote } : n));
+    } else {
+      const newId = Math.max(...notes.map((n) => n.id), 0) + 1;
+      setNotes([
+        ...notes,
+        { id: newId, title: newNote.title, content: newNote.content },
+      ]);
+    }
+    setIsEditorOpen(false);
+    setEditingNote(null);
   }
 
   function handleSignOut() {
@@ -48,10 +69,22 @@ function Dashboard() {
           <WelcomeCard userName="Jonas Kahnwald" email="xxxxxx@xxxx.com" />
           <div className="w-full flex flex-col items-center justify-center mt-6">
             <CreateNoteButton onCreateNote={createNote} />
-            <NotesList notes={notes} onDeleteNote={deleteNote} />
+            <NotesList
+              notes={notes}
+              onDeleteNote={deleteNote}
+              onEditNote={handleEditNote}
+            />
           </div>
         </div>
       </div>
+      {isEditorOpen && (
+        <NoteEditor
+          onSave={handleSaveNote}
+          onCancel={() => { setIsEditorOpen(false); setEditingNote(null); }}
+          initialTitle={editingNote?.title}
+          initialContent={editingNote?.content}
+        />
+      )}
     </main>
   );
 }

@@ -4,16 +4,19 @@ import { NoteItem } from "./NoteItem";
 interface Note {
   id: number;
   title: string;
+  content: string;
 }
 
 interface NotesListProps {
   notes: Note[];
   onDeleteNote: (id: number) => void;
+  onEditNote: (note: Note) => void;
 }
 
 export const NotesList: React.FC<NotesListProps> = ({
   notes,
   onDeleteNote,
+  onEditNote,
 }) => {
   return (
     <section className="absolute left-4 max-w-full top-[315px] w-[calc(100%_-_32px)] max-md:max-w-full max-sm:max-w-[343px] max-sm:top-[373px] max-sm:w-[calc(100%_-_32px)]">
@@ -22,7 +25,7 @@ export const NotesList: React.FC<NotesListProps> = ({
       </h2>
       <div className="flex flex-col gap-2.5">
         {notes?.map((note) => (
-          <NoteItem key={note.id} note={note} onDelete={onDeleteNote} />
+          <NoteItem key={note.id} note={note} onDelete={onDeleteNote} onEdit={onEditNote} />
         ))}
       </div>
     </section>
