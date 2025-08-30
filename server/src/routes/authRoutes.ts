@@ -1,7 +1,10 @@
 
+
 import express from 'express';
 import { signup, verifyOtp, login } from '../controllers/authController';
 import { body } from 'express-validator';
+import passport from 'passport';
+import { generateToken } from '../utils/token';
 
 const router = express.Router();
 // Route for handling user login.
@@ -35,6 +38,25 @@ router.post(
     body('otp', 'OTP must be a 6-digit number').isLength({ min: 6, max: 6 }),
   ],
   verifyOtp
+);
+
+
+// --- Google OAuth Routes ---
+// Route to start the Google OAuth flow
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// Route for the Google callback
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
+  (req: any, res) => {
+    // On successful authentication, req.user is populated by Passport
+    const token = generateToken(String(req.user._id));
+
+    // Redirect to the frontend, passing the token as a query parameter
+    // In production, you'd use your actual frontend URL
+    res.redirect(`http://localhost:3000/dashboard?token=${token}`);
+  }
 );
 
 export default router;

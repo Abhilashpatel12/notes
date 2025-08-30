@@ -167,11 +167,42 @@ export default function SignIn() {
             <div className="flex w-[399px] flex-col items-start gap-[30px]">
               {/* Sign in Button */}
               <button
+
                 onClick={handleSignIn}
                 className="flex h-[54px] px-2 py-4 justify-center items-center gap-2 self-stretch bg-[#367AFF] rounded-[10px] hover:bg-[#2968cc] transition-colors"
               >
                 <span className="text-lg leading-[120%] tracking-[-0.18px] text-white font-semibold font-inter">
                   Sign in
+                </span>
+              </button>
+
+              {/* Google Sign-in Button */}
+              <button
+                onClick={() => {
+                  // TODO: Connect to backend for Google OAuth
+                  console.log('Google sign-in clicked');
+                }}
+                className="flex h-[54px] px-2 py-4 justify-center items-center gap-3 self-stretch border border-[#367AFF] rounded-[10px] hover:bg-blue-50 transition-colors"
+                type="button"
+              >
+                <span className="flex items-center justify-center w-7 h-7">
+                  {/* Google SVG */}
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clipPath="url(#clip0_17_40)">
+                      <path d="M23.766 12.276c0-.818-.074-1.597-.212-2.344H12.24v4.437h6.484a5.54 5.54 0 01-2.4 3.637v3.017h3.877c2.27-2.09 3.565-5.17 3.565-8.747z" fill="#4285F4"/>
+                      <path d="M12.24 24c3.24 0 5.963-1.07 7.95-2.91l-3.877-3.017c-1.08.726-2.457 1.16-4.073 1.16-3.13 0-5.78-2.11-6.73-4.946H1.53v3.09A11.997 11.997 0 0012.24 24z" fill="#34A853"/>
+                      <path d="M5.51 14.287a7.19 7.19 0 010-4.574v-3.09H1.53a12.002 12.002 0 000 10.754l3.98-3.09z" fill="#FBBC05"/>
+                      <path d="M12.24 7.577c1.77 0 3.35.61 4.6 1.81l3.44-3.44C18.2 3.77 15.48 2.7 12.24 2.7A11.997 11.997 0 001.53 7.623l3.98 3.09c.95-2.836 3.6-4.946 6.73-4.946z" fill="#EA4335"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_17_40">
+                        <rect width="24" height="24" fill="white"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                </span>
+                <span className="text-lg leading-[120%] tracking-[-0.18px] text-[#232323] font-semibold font-inter">
+                  Sign in with Google
                 </span>
               </button>
 

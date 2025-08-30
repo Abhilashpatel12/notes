@@ -5,7 +5,7 @@ import Note from '../models/Note';
 // @route   GET /api/notes
 export const getNotes = async (req: Request, res: Response) => {
   try {
-    const notes = await Note.find({ userId: req.user?._id });
+    const notes = await Note.find({ userId: (req.user as any)?._id });
     res.status(200).json(notes);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -25,7 +25,7 @@ export const createNote = async (req: Request, res: Response) => {
     const note = new Note({
       title,
       content,
-      userId: req.user?._id,
+      userId: (req.user as any)?._id,
     });
 
     const createdNote = await note.save();
@@ -46,7 +46,7 @@ export const deleteNote = async (req: Request, res: Response) => {
     }
 
     // Security check: Make sure the logged-in user owns this note
-  if (note.userId.toString() !== String(req.user?._id)) {
+  if (note.userId.toString() !== String((req.user as any)?._id)) {
       return res.status(401).json({ message: 'User not authorized' });
     }
 

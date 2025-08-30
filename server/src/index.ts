@@ -12,16 +12,23 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   message: 'Too many requests from this IP, please try again after 15 minutes',
 });
+
+import passport from 'passport';
+import { configurePassport } from './config/passport';
 import connectDB from './config/db';
 import authRoutes from './routes/authRoutes';
 import noteRoutes from './routes/noteRoutes';
 
+
 dotenv.config();
 connectDB();
+configurePassport(); // Configure passport
+
 
 
 const app: Express = express();
 const port = process.env.PORT || 5000;
+app.use(passport.initialize()); // Initialize passport
 
 // --- Security Middleware ---
 app.use(helmet()); // Set security headers
