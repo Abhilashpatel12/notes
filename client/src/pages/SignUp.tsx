@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Calendar, EyeOff } from "lucide-react";
 
 export default function SignUp() {
+  const navigate = useNavigate();
   const [showOtpField, setShowOtpField] = useState(false);
   const [formData, setFormData] = useState({
     name: "Jonas Khanwald",
@@ -17,6 +19,8 @@ export default function SignUp() {
   const handleSignUp = () => {
     // Handle final sign up
     console.log("Sign up with:", formData);
+    // Navigate to dashboard after sign up
+    navigate("/dashboard");
   };
 
   return (

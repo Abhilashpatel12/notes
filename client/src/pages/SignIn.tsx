@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { EyeOff } from "lucide-react";
 
 export default function SignIn() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "jonas_kahnwald@gmail.com",
     otp: "",
@@ -10,6 +12,8 @@ export default function SignIn() {
 
   const handleSignIn = () => {
     console.log("Sign in with:", formData);
+    // Navigate to dashboard after sign in
+    navigate("/dashboard");
   };
 
   const handleResendOtp = () => {
