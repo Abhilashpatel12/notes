@@ -3,12 +3,30 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/User';
 
 export const configurePassport = () => {
+  // Validate required environment variables
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    throw new Error('GOOGLE_CLIENT_ID is required in environment variables');
+  }
+  
+  if (!process.env.GOOGLE_CLIENT_SECRET) {
+    throw new Error('GOOGLE_CLIENT_SECRET is required in environment variables');
+  }
+  
+  if (!process.env.BACKEND_URL) {
+    throw new Error('BACKEND_URL is required in environment variables');
+  }
+
+  const callbackURL = `${process.env.BACKEND_URL}/api/auth/google/callback`;
+  console.log(`🔧 [passport]: Google OAuth callback URL configured: ${callbackURL}`);
+
   passport.use(
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID as string,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-        callbackURL: '/api/auth/google/callback',
+        // --- REFACTORED CODE ---
+        // Now it dynamically builds the callback URL from an environment variable
+        callbackURL,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
