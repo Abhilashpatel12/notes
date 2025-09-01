@@ -27,6 +27,28 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // --- Security Middleware ---
+// Build CSP connect-src dynamically based on environment
+const buildConnectSrc = () => {
+  const connectSrc = ["'self'"];
+  
+  // Add backend URL - use environment variable or localhost fallback
+  const backendUrl = process.env.BACKEND_URL || `http://localhost:${port}`;
+  connectSrc.push(backendUrl);
+  
+  // Add frontend URL for WebSocket connections in development
+  if (process.env.NODE_ENV === 'development') {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    connectSrc.push(frontendUrl);
+    // Add WebSocket connection for Vite dev server
+    connectSrc.push('ws://127.0.0.1:5173');
+  }
+  
+  // Always allow Google OAuth and APIs
+  connectSrc.push('https://accounts.google.com', 'https://api.googleapis.com');
+  
+  return connectSrc;
+};
+
 // Disable CSP in development to avoid blocking frontend connections
 const cspConfig = process.env.NODE_ENV === 'development' ? false : {
   directives: {
@@ -36,7 +58,7 @@ const cspConfig = process.env.NODE_ENV === 'development' ? false : {
     imgSrc: [process.env.CSP_IMG_SRC || "'self'", "data:", "https:"],
     connectSrc: process.env.CSP_CONNECT_SRC ? 
       process.env.CSP_CONNECT_SRC.split(' ') : 
-      ["'self'", "http://localhost:5000", "http://localhost:5173", "https://accounts.google.com", "https://api.googleapis.com"],
+      buildConnectSrc(),
     fontSrc: ["'self'", "https://fonts.gstatic.com"],
     objectSrc: ["'none'"],
     mediaSrc: ["'self'"],
