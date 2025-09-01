@@ -1,3 +1,22 @@
+import React from 'react';
+import { Button as BaseButton, buttonVariants } from './button';
+import { cn } from '@/lib/utils';
+
+interface Props extends React.ComponentProps<typeof BaseButton> {
+  fullWidth?: boolean;
+}
+
+// Wrapper to provide a default export and allow fullWidth prop used in existing auth pages.
+const Button: React.FC<Props> = ({ fullWidth, className, ...props }) => {
+  return (
+    <BaseButton
+      className={cn(fullWidth && 'w-full', className)}
+      {...props}
+    />
+  );
+};
+
+export default Button;
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";

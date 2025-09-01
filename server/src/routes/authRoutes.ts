@@ -1,25 +1,14 @@
 
 
-import express from 'express';
-import { signup, verifyOtp, login } from '../controllers/authController';
-import { body } from 'express-validator';
+import express, { Response } from 'express';
 import passport from 'passport';
+import { body } from 'express-validator';
+import { signup, verifyOtp, login, sendLoginOtp, verifyLoginOtp } from '../controllers/authController';
 import { generateToken } from '../utils/token';
 
 const router = express.Router();
-// Route for handling user login.
-// We validate that the email and password are provided and meet basic criteria.
-router.post(
-  '/login',
-  [
-    body('email', 'Please provide a valid email').isEmail().normalizeEmail(),
-    body('password', 'Password is required').not().isEmpty(),
-  ],
-  login
-);
 
-// Route for handling the initial user registration.
-// We apply a validation chain to ensure the incoming data is clean.
+// --- Standard Authentication Routes ---
 router.post(
   '/signup',
   [
@@ -30,7 +19,6 @@ router.post(
   signup
 );
 
-// Route for verifying the OTP sent to the user's email.
 router.post(
   '/verify-otp',
   [
@@ -40,22 +28,41 @@ router.post(
   verifyOtp
 );
 
+router.post(
+  '/login',
+  [
+    body('email', 'Please provide a valid email').isEmail().normalizeEmail(),
+    body('password', 'Password is required').not().isEmpty(),
+  ],
+  login
+);
+
+router.post(
+  '/send-login-otp',
+  [
+    body('email', 'Please provide a valid email').isEmail().normalizeEmail(),
+  ],
+  sendLoginOtp
+);
+
+router.post(
+  '/verify-login-otp',
+  [
+    body('email', 'Email is required').isEmail().normalizeEmail(),
+    body('otp', 'OTP must be a 6-digit number').isLength({ min: 6, max: 6 }),
+  ],
+  verifyLoginOtp
+);
 
 // --- Google OAuth Routes ---
-// Route to start the Google OAuth flow
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-// Route for the Google callback
 router.get(
   '/google/callback',
   passport.authenticate('google', { session: false, failureRedirect: '/login' }),
-  (req: any, res) => {
-    // On successful authentication, req.user is populated by Passport
-    const token = generateToken(String(req.user._id));
-
-    // Redirect to the frontend, passing the token as a query parameter
-    // In production, you'd use your actual frontend URL
-    res.redirect(`http://localhost:3000/dashboard?token=${token}`);
+  (req: any, res: Response) => {
+    const token = generateToken(req.user._id);
+  res.redirect(`${process.env.FRONTEND_URL}/auth/google/callback?token=${token}`);
   }
 );
 

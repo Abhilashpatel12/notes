@@ -1,26 +1,61 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Calendar, EyeOff } from "lucide-react";
+
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { EyeOff } from "lucide-react";
+import authService from '../services/auth.service';
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showOtpField, setShowOtpField] = useState(false);
   const [formData, setFormData] = useState({
-    name: "Jonas Khanwald",
-    dateOfBirth: "11 December 1997",
-    email: "jonas_kahnwald@gmail.com",
+    name: "",
+    dateOfBirth: "",
+    email: "",
+    password: "",
     otp: "",
   });
+  const [error, setError] = useState("");
 
-  const handleGetOtp = () => {
-    setShowOtpField(true);
+  // Check for Google OAuth error in URL params
+  useEffect(() => {
+    const googleError = searchParams.get('error');
+    if (googleError) {
+      setError('Google sign-up failed: ' + decodeURIComponent(googleError));
+    }
+  }, [searchParams]);
+
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSignUp = () => {
-    // Handle final sign up
-    console.log("Sign up with:", formData);
-    // Navigate to dashboard after sign up
-    navigate("/dashboard");
+  // Handler for the first step (name, email, password)
+  const handleGetOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setError("");
+    try {
+      const { name, email, password } = formData;
+      await authService.signup({ name, email, password });
+      setShowOtpField(true);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'An error occurred during signup.');
+    }
+  };
+
+  // Handler for the second step (OTP verification)
+  const handleSignUp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setError("");
+    try {
+      const { email, otp } = formData;
+      const response = await authService.verifyOtp({ email, otp });
+      localStorage.setItem('token', response.data.token);
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'An error occurred during OTP verification.');
+    }
   };
 
   return (
@@ -91,16 +126,20 @@ export default function SignUp() {
 
           {/* Form */}
           <div className="flex flex-col gap-5">
+
+            {/* Error Message */}
+            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
             {/* Name Input */}
             <div className="relative">
               <div className="flex w-[399px] px-4 py-4 items-center gap-[2px] border-[1.5px] border-[#D9D9D9] rounded-[10px]">
                 <input
                   type="text"
+                  name="name"
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={handleChange}
                   className="w-full text-lg leading-[150%] text-[#232323] bg-transparent outline-none font-inter"
+                  placeholder="Your Name"
                 />
               </div>
               <div className="absolute left-4 -top-2 flex px-1 items-center gap-[10px] bg-white">
@@ -131,11 +170,11 @@ export default function SignUp() {
                 </svg>
                 <input
                   type="text"
+                  name="dateOfBirth"
                   value={formData.dateOfBirth}
-                  onChange={(e) =>
-                    setFormData({ ...formData, dateOfBirth: e.target.value })
-                  }
+                  onChange={handleChange}
                   className="flex-1 text-lg leading-[150%] text-[#232323] bg-transparent outline-none font-inter"
+                  placeholder="Date of Birth"
                 />
               </div>
               <div className="absolute left-4 -top-2 flex px-1 items-center gap-[10px] bg-white">
@@ -154,11 +193,11 @@ export default function SignUp() {
               >
                 <input
                   type="email"
+                  name="email"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={handleChange}
                   className="flex-1 text-lg leading-[150%] text-[#232323] bg-transparent outline-none font-inter"
+                  placeholder="Email"
                 />
                 {!showOtpField && (
                   <span className="text-lg leading-[150%] text-[#232323] font-light font-inter">
@@ -177,17 +216,37 @@ export default function SignUp() {
               </div>
             </div>
 
+            {/* Password Input */}
+            {!showOtpField && (
+              <div className="relative">
+                <div className="flex w-[399px] px-4 py-4 items-center gap-[2px] border-[1.5px] border-[#D9D9D9] rounded-[10px]">
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full text-lg leading-[150%] text-[#232323] bg-transparent outline-none font-inter"
+                    placeholder="Password"
+                  />
+                </div>
+                <div className="absolute left-4 -top-2 flex px-1 items-center gap-[10px] bg-white">
+                  <span className="text-sm leading-[150%] text-[#9A9A9A] font-inter font-medium">
+                    Password
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* OTP Input (conditional) */}
             {showOtpField && (
               <div className="relative">
                 <div className="flex w-[399px] px-4 py-4 justify-center items-center gap-[10px] border border-[#367AFF] rounded-[10px]">
                   <input
                     type="text"
+                    name="otp"
                     placeholder="OTP"
                     value={formData.otp}
-                    onChange={(e) =>
-                      setFormData({ ...formData, otp: e.target.value })
-                    }
+                    onChange={handleChange}
                     className="flex-1 text-lg leading-[150%] text-[#9A9A9A] bg-transparent outline-none font-inter placeholder:text-[#9A9A9A]"
                   />
                   <EyeOff className="w-6 h-6 text-[#9A9A9A] flex-shrink-0" />
@@ -199,6 +258,7 @@ export default function SignUp() {
             <button
               onClick={showOtpField ? handleSignUp : handleGetOtp}
               className="flex w-[399px] px-2 py-4 justify-center items-center gap-2 bg-[#367AFF] rounded-[10px] hover:bg-[#2968cc] transition-colors"
+              type="button"
             >
               <span className="text-lg leading-[120%] tracking-[-0.18px] text-white font-semibold font-inter">
                 {showOtpField ? "Sign up" : "Get OTP"}
@@ -208,8 +268,8 @@ export default function SignUp() {
             {/* Google Sign-up Button */}
             <button
               onClick={() => {
-                // TODO: Connect to backend for Google OAuth
-                console.log('Google sign-up clicked');
+                // Redirect to backend Google OAuth endpoint
+                window.location.href = `${import.meta.env.VITE_API_BASE_URL}/api/auth/google`;
               }}
               className="flex w-[399px] h-[54px] px-2 py-4 justify-center items-center gap-3 border border-[#367AFF] rounded-[10px] hover:bg-blue-50 transition-colors"
               type="button"
@@ -237,16 +297,16 @@ export default function SignUp() {
           </div>
 
           {/* Bottom Link */}
-          <div className="text-center">
+          <div className="text-center flex flex-col items-center gap-2 mt-6">
             <span className="text-lg leading-[150%] text-[#6C6C6C] font-inter">
-              Already have an account??{" "}
+              Already have an account?
             </span>
-            <a
-              href="/signin"
+            <Link
+              to="/signin"
               className="text-lg leading-[150%] text-[#367AFF] font-semibold underline font-inter hover:text-[#2968cc] transition-colors"
             >
               Sign in
-            </a>
+            </Link>
           </div>
         </div>
       </div>

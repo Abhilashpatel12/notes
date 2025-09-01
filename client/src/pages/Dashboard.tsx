@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "../components/ui/Header";
 import { WelcomeCard } from "../components/ui/WelcomeCard";
 import { CreateNoteButton } from "../components/ui/CreateNoteButton";
@@ -14,6 +15,7 @@ interface Note {
 }
 
 function Dashboard() {
+  const navigate = useNavigate();
   const [notes, setNotes] = useState<Note[]>(() => [
     {
       id: 1,
@@ -57,8 +59,10 @@ function Dashboard() {
     setEditingNote(null);
   }
 
+  // ...existing code...
   function handleSignOut() {
-    console.log("Sign out clicked");
+    localStorage.removeItem('token');
+  navigate('/signin');
   }
 
   return (
