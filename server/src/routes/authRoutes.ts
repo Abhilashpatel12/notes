@@ -3,8 +3,9 @@
 import express, { Response } from 'express';
 import passport from 'passport';
 import { body } from 'express-validator';
-import { signup, verifyOtp, login, sendLoginOtp, verifyLoginOtp } from '../controllers/authController';
+import { signup, verifyOtp, login, sendLoginOtp, verifyLoginOtp, getMe } from '../controllers/authController';
 import { generateToken } from '../utils/token';
+import { protect } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
@@ -53,6 +54,9 @@ router.post(
   ],
   verifyLoginOtp
 );
+
+// --- Get Current User ---
+router.get('/me', protect, getMe);
 
 // --- Google OAuth Routes ---
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));

@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "noImplicitAny": false
+  },
+  "exclude": [
+    "src/components/ui/**/*",
+    "src/lib/utils.spec.ts",
+    "!src/components/ui/toaster.tsx",
+    "!src/components/ui/sonner.tsx", 
+    "!src/components/ui/tooltip.tsx",
+    "!src/components/ui/Header.tsx",
+    "!src/components/ui/WelcomeCard.tsx",
+    "!src/components/ui/CreateNoteButton.tsx",
+    "!src/components/ui/NotesList.tsx",
+    "!src/components/ui/MarkdownViewer.tsx"
+  ]
+}

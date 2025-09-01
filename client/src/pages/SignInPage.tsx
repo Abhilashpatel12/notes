@@ -60,7 +60,18 @@ const SignInPage = () => {
     setError('');
     try {
       const response = await authService.verifyLoginOtp({ email, otp });
+      
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userEmail', email);
+      
+      // If user data is returned from the API, store it
+      if (response.data.user) {
+        localStorage.setItem('userName', response.data.user.name || email.split('@')[0]);
+      } else {
+        // Fallback to using email username as name
+        localStorage.setItem('userName', email.split('@')[0]);
+      }
+      
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid OTP.');

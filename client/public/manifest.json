@@ -1,0 +1,36 @@
+{
+  "name": "HD Notes - Secure Note Taking",
+  "short_name": "HD Notes",
+  "description": "Secure, fast, and beautiful note-taking application with markdown support",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e40af",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "utilities"],
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Create New Note",
+      "short_name": "New Note",
+      "description": "Create a new note",
+      "url": "/dashboard?action=new",
+      "icons": [
+        {
+          "src": "/vite.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}

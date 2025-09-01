@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-// Use environment variable for backend URL
+// Use environment variable for backend URL with fallback
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL + '/api/auth',
+  baseURL: `${API_BASE_URL}/api/auth`,
 });
 
 /**
@@ -45,12 +46,29 @@ export const verifyLoginOtp = (otpData: any) => {
   return api.post('/verify-login-otp', otpData);
 };
 
+/**
+ * Gets current user information using the stored token.
+ */
+export const getCurrentUser = () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  
+  return api.get('/me', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 const authService = {
   signup,
   verifyOtp,
   login,
   sendLoginOtp,
   verifyLoginOtp,
+  getCurrentUser,
 };
 
 export default authService;

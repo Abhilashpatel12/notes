@@ -51,7 +51,11 @@ export default function SignUp() {
     try {
       const { email, otp } = formData;
       const response = await authService.verifyOtp({ email, otp });
+      
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userName', formData.name || email.split('@')[0]);
+      
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'An error occurred during OTP verification.');

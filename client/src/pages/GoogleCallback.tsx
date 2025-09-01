@@ -8,28 +8,36 @@ const GoogleCallback = () => {
   useEffect(() => {
     // Prevent double processing in React Strict Mode
     if (hasProcessed.current) return;
-    
-    console.log("Callback component mounted. Current URL:", window.location.href);
 
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
     const error = urlParams.get('error');
+    const email = urlParams.get('email');
+    const name = urlParams.get('name');
 
     if (token) {
-      console.log("Success: Token found in URL.");
       hasProcessed.current = true;
       localStorage.setItem('token', token);
-      console.log("Token has been stored. Navigating to /dashboard...");
+      
+      // Store user information if provided in URL params
+      if (email) {
+        localStorage.setItem('userEmail', email);
+      }
+      if (name) {
+        localStorage.setItem('userName', name);
+      } else if (email) {
+        // Fallback to using email username as name
+        const fallbackName = email.split('@')[0];
+        localStorage.setItem('userName', fallbackName);
+      }
 
       // Clear the URL parameters and navigate
       window.history.replaceState({}, '', '/auth/google/callback');
       navigate('/dashboard', { replace: true });
     } else if (error) {
-      console.error("Error found in URL:", error);
       hasProcessed.current = true;
       navigate('/signin?error=' + encodeURIComponent(error), { replace: true });
     } else if (!hasProcessed.current) {
-      console.warn("No token or error found in URL. Redirecting to signin.");
       hasProcessed.current = true;
       navigate('/signin', { replace: true });
     }
