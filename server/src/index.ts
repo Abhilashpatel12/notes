@@ -36,7 +36,7 @@ const cspConfig = process.env.NODE_ENV === 'development' ? false : {
     imgSrc: [process.env.CSP_IMG_SRC || "'self'", "data:", "https:"],
     connectSrc: process.env.CSP_CONNECT_SRC ? 
       process.env.CSP_CONNECT_SRC.split(' ') : 
-      ["'self'", "http://localhost:5000", "http://localhost:5173", "https://accounts.google.com", "https://api.googleapis.com"],
+      ["'self'", ...(process.env.API_BASE_URL ? [process.env.API_BASE_URL] : []), "https://accounts.google.com", "https://api.googleapis.com"],
     fontSrc: ["'self'", "https://fonts.gstatic.com"],
     objectSrc: ["'none'"],
     mediaSrc: ["'self'"],
@@ -199,7 +199,7 @@ const server = app.listen(port, () => {
   console.log(`🔍 [security]: Request logging enabled (${process.env.NODE_ENV || 'development'} mode)`);
   console.log(`🚫 [security]: NoSQL injection protection enabled`);
   console.log(`🛡️ [security]: HTTP Parameter Pollution protection enabled`);
-  console.log(`🌐 [cors]: CORS enabled for origin: ${process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+  console.log(`🌐 [cors]: CORS enabled${process.env.NODE_ENV === 'production' ? '' : ` for origin: ${process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:5173'}`}`);
 });
 
 // Graceful shutdown handling
