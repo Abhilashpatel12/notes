@@ -54,8 +54,20 @@ app.use(helmet({
   } : false // Disable HSTS in development
 })); // Enhanced security headers
 
+// Normalize CORS origins by removing trailing slashes
+const normalizeOrigin = (origin: string): string => {
+  return origin.endsWith('/') ? origin.slice(0, -1) : origin;
+};
+
+const corsOrigins = (() => {
+  const baseOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:5173';
+  const normalized = normalizeOrigin(baseOrigin);
+  // Accept both with and without trailing slash for robustness
+  return [normalized, normalized + '/'];
+})();
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: corsOrigins,
   credentials: process.env.CORS_CREDENTIALS === 'true' || true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -184,7 +196,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 // 404 handler
 app.use('*', (req: Request, res: Response) => {
-  console.log(`${new Date().toISOString()} - 404: ${req.method} ${req.originalUrl} from ${req.ip}`);
+  console.log(`${new Date().toISOString()} - 404: ${req.method} request from ${req.ip}`);
   res.status(404).json({ 
     message: 'Route not found',
     timestamp: new Date().toISOString(),
@@ -199,7 +211,7 @@ const server = app.listen(port, () => {
   console.log(`🔍 [security]: Request logging enabled (${process.env.NODE_ENV || 'development'} mode)`);
   console.log(`🚫 [security]: NoSQL injection protection enabled`);
   console.log(`🛡️ [security]: HTTP Parameter Pollution protection enabled`);
-  console.log(`🌐 [cors]: CORS enabled${process.env.NODE_ENV === 'production' ? '' : ` for origin: ${process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:5173'}`}`);
+  console.log(`🌐 [cors]: CORS enabled for configured origins`);
 });
 
 // Graceful shutdown handling

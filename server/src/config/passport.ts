@@ -17,7 +17,7 @@ export const configurePassport = () => {
   }
 
   const callbackURL = `${process.env.BACKEND_URL}/api/auth/google/callback`;
-  console.log(`🔧 [passport]: Google OAuth callback URL configured: ${callbackURL}`);
+  console.log(`🔧 [passport]: Google OAuth callback URL configured`);
 
   passport.use(
     new GoogleStrategy(
